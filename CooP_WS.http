@@ -1,0 +1,6 @@
+@CooP_WS_HostAddress = http://localhost:5289
+
+GET {{CooP_WS_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
