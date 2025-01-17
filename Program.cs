@@ -1,4 +1,6 @@
+using CooP_WS;
 using CooP_WS.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +21,19 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddSingleton<PubSubSubscriber>(serviceProvider =>
+{
+    var hubContext = serviceProvider.GetRequiredService<IHubContext<CanvasHub>>();
+    return new PubSubSubscriber("coop-443623", "your-subscription-id", hubContext);
+});
+
 var app = builder.Build();
+
+// Start the Pub/Sub subscriber
+var pubSubSubscriber = app.Services.GetRequiredService<PubSubSubscriber>();
+var cts = new CancellationTokenSource();
+await pubSubSubscriber.StartAsync(cts.Token).ConfigureAwait(false);
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
