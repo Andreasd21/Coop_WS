@@ -25,32 +25,6 @@ namespace CooP_WS.Hubs
         }
 
 
-public override async Task OnConnectedAsync()
-    {
-        try
-        {
-            var httpContext = Context.GetHttpContext();
-            var authorizationHeader = httpContext.Request.Headers["Authorization"].FirstOrDefault();
-
-            if (authorizationHeader == null || !authorizationHeader.StartsWith("Bearer "))
-            {
-                throw new UnauthorizedAccessException("No token provided.");
-            }
-
-            var token = authorizationHeader.Substring("Bearer ".Length);
-
-            // Validate the token using Google.Apis.Auth
-            var payload = await GoogleJsonWebSignature.ValidateAsync(token);
-            Console.WriteLine($"Token valid. User ID: {payload.Subject}");
-
-            await base.OnConnectedAsync();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Authentication failed: {ex.Message}");
-            Context.Abort(); // Disconnect the client
-        }
-    }
 
     // Broadcast pixel updates to all connected clients and publish to Pub/Sub
     public async Task UpdatePixel(int x, int y, string color)
