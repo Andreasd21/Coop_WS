@@ -24,7 +24,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddSingleton<PubSubSubscriber>(serviceProvider =>
 {
     var hubContext = serviceProvider.GetRequiredService<IHubContext<CanvasHub>>();
-    return new PubSubSubscriber("coop-443623", "your-subscription-id", hubContext);
+    return new PubSubSubscriber("coop-443623", "wscanvas", hubContext);
 });
 
 var app = builder.Build();

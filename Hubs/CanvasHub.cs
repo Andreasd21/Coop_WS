@@ -1,12 +1,7 @@
-﻿using Google.Api;
-using Google.Apis.Auth;
-using Google.Cloud.PubSub.V1;
+﻿using Google.Cloud.PubSub.V1;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
-using Google.Apis.Auth;
 using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace CooP_WS.Hubs
@@ -20,14 +15,11 @@ namespace CooP_WS.Hubs
         {
             var projectId = "coop-443623";
             var topicName = TopicName.FromProjectTopic(projectId, TopicId);
-
             _publisherClient = PublisherClient.Create(topicName);
         }
 
-
-
-    // Broadcast pixel updates to all connected clients and publish to Pub/Sub
-    public async Task UpdatePixel(int x, int y, string color)
+        // Publish to Pub/Sub
+        public async Task UpdatePixel(int x, int y, string color)
         {
             var messagePayload = new
             {
@@ -37,10 +29,11 @@ namespace CooP_WS.Hubs
             };
             var messageJson = JsonConvert.SerializeObject(messagePayload);
 
+            // Publish the message to Pub/Sub
             await _publisherClient.PublishAsync(messageJson);
 
-            // Send the message to other connected clients
-            await Clients.Others.SendAsync("ReceivePixelUpdate", x, y, color);
+            // Optionally log or acknowledge the message
+            Console.WriteLine("Message published to Pub/Sub.");
         }
     }
 }
