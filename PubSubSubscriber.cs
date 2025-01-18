@@ -1,10 +1,12 @@
 ﻿using CooP_WS.Hubs;
+using CooP_WS.Modal;
 using Google.Cloud.PubSub.V1;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+
 
 namespace CooP_WS
 {
@@ -28,24 +30,24 @@ namespace CooP_WS
                 {
                     // Decode the Pub/Sub message
                     var messageData = System.Text.Encoding.UTF8.GetString(message.Data.ToByteArray());
-                    var pixelUpdate = JsonConvert.DeserializeObject<dynamic>(messageData);
+                    var pixelUpdate = JsonConvert.DeserializeObject<PixelUpdate>(messageData);
+                   
+                    await _hubContext.Clients.All.SendAsync("ReceivePixelUpdate", pixelUpdate.X, pixelUpdate.Y, pixelUpdate.Color);
 
-                    // Broadcast the message to all connected clients
-                    await _hubContext.Clients.All.SendAsync("ReceivePixelUpdate",
-                        (int)pixelUpdate.x,
-                        (int)pixelUpdate.y,
-                        (string)pixelUpdate.color);
 
                     Console.WriteLine($"Message received and broadcasted: {messageData}");
+
 
                     // Acknowledge the message
                     return SubscriberClient.Reply.Ack;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error processing message: {ex.Message}");
+                    Console.WriteLine($"Error processing Pub/Sub message: {ex.Message}");
+                    Console.WriteLine($"Stack Trace: {ex.StackTrace}");
                     return SubscriberClient.Reply.Nack;
                 }
+
             });
         }
     }

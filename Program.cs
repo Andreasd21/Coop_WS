@@ -33,7 +33,7 @@ var app = builder.Build();
 var cts = new CancellationTokenSource();
 
 var pubSubSubscriber = app.Services.GetRequiredService<PubSubSubscriber>();
-Task.Run(() => pubSubSubscriber.StartAsync(cts.Token));
+Task.Run(() => pubSubSubscriber.StartAsync(new CancellationTokenSource().Token));
 
 
 // Configure the HTTP request pipeline.
