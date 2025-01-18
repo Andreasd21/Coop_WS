@@ -1,6 +1,8 @@
 using CooP_WS;
 using CooP_WS.Hubs;
 using Microsoft.AspNetCore.SignalR;
+using StackExchange.Redis;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,19 +23,13 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddSingleton<PubSubSubscriber>(serviceProvider =>
-{
-    var hubContext = serviceProvider.GetRequiredService<IHubContext<CanvasHub>>();
-    return new PubSubSubscriber("coop-443623", "wscanvas", hubContext);
-});
+// Connect to Redis
+var redisConnectionString = "10.220.249.99:6379"; // Replace with your Redis endpoint
+var redis = ConnectionMultiplexer.Connect(redisConnectionString);
+builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
+
 
 var app = builder.Build();
-
-// Start the Pub/Sub subscriber
-var cts = new CancellationTokenSource();
-
-var pubSubSubscriber = app.Services.GetRequiredService<PubSubSubscriber>();
-Task.Run(() => pubSubSubscriber.StartAsync(new CancellationTokenSource().Token));
 
 
 // Configure the HTTP request pipeline.
