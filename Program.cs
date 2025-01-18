@@ -14,7 +14,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowedOriginsPolicy", builder =>
     {
-        builder.WithOrigins("https://coopfront-674574933021.europe-central2.run.app/") // Replace with your frontend URL
+        builder.WithOrigins("https://coopfront-674574933021.europe-central2.run.app") // Replace with your frontend URL
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials(); // Allow credentials if needed
@@ -30,9 +30,10 @@ builder.Services.AddSingleton<PubSubSubscriber>(serviceProvider =>
 var app = builder.Build();
 
 // Start the Pub/Sub subscriber
-var pubSubSubscriber = app.Services.GetRequiredService<PubSubSubscriber>();
 var cts = new CancellationTokenSource();
-await pubSubSubscriber.StartAsync(cts.Token).ConfigureAwait(false);
+
+var pubSubSubscriber = app.Services.GetRequiredService<PubSubSubscriber>();
+Task.Run(() => pubSubSubscriber.StartAsync(cts.Token));
 
 
 // Configure the HTTP request pipeline.
