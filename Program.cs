@@ -1,3 +1,4 @@
+using CooP_WS;
 using CooP_WS.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.StackExchangeRedis;
@@ -8,6 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var redisConnectionString = "10.220.249.99:6379"; // Replace with your Redis endpoint
+var redis = ConnectionMultiplexer.Connect(redisConnectionString);
+builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
+
 
 // Add SignalR and configure Redis backplane
 builder.Services.AddSignalR()
@@ -24,23 +30,13 @@ builder.Services.AddCors(options =>
                .AllowCredentials(); // Allow credentials if needed
     });
 });
+builder.Services.AddSingleton<RedisSubscriberService>();
 
-// Connect to Redis with logging
-var redisConnectionString = "10.220.249.99:6379"; // Replace with your Redis endpoint
-try
-{
-    Console.WriteLine("Attempting to connect to Redis...");
-    var redis = ConnectionMultiplexer.Connect(redisConnectionString);
-    Console.WriteLine("Successfully connected to Redis.");
-    builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"Failed to connect to Redis: {ex.Message}");
-    throw; // Re-throw to stop the application if Redis connection is critical
-}
 
 var app = builder.Build();
+
+
+app.Services.GetRequiredService<RedisSubscriberService>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
