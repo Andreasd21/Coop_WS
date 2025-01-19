@@ -10,14 +10,29 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add Redis connection with a health check
 var redisConnectionString = "10.220.249.99:6379"; // Replace with your Redis endpoint
-var redis = ConnectionMultiplexer.Connect(redisConnectionString);
-builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
+try
+{
+    Console.WriteLine("Attempting to connect to Redis...");
+    var redis = ConnectionMultiplexer.Connect(redisConnectionString);
 
+    // Test Redis connection with a PING command
+    var redisDatabase = redis.GetDatabase();
+    var redisPingResponse = redisDatabase.Ping();
+    Console.WriteLine($"Connected to Redis. Ping response: {redisPingResponse}");
+
+    builder.Services.AddSingleton<IConnectionMultiplexer>(redis);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Failed to connect to Redis: {ex.Message}");
+    throw; // Stop the application if Redis connection is critical
+}
 
 // Add SignalR and configure Redis backplane
 builder.Services.AddSignalR()
-    .AddStackExchangeRedis("10.220.249.99:6379"); // Replace with your Redis endpoint
+    .AddStackExchangeRedis(redisConnectionString); // Replace with your Redis endpoint
 
 // Add CORS services and define a named policy
 builder.Services.AddCors(options =>
@@ -30,12 +45,13 @@ builder.Services.AddCors(options =>
                .AllowCredentials(); // Allow credentials if needed
     });
 });
-builder.Services.AddSingleton<RedisSubscriberService>();
 
+// Add RedisSubscriberService
+builder.Services.AddSingleton<RedisSubscriberService>();
 
 var app = builder.Build();
 
-
+// Start RedisSubscriberService
 app.Services.GetRequiredService<RedisSubscriberService>();
 
 // Configure the HTTP request pipeline.
