@@ -39,13 +39,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowedOriginsPolicy", builder =>
     {
-        builder.WithOrigins("https://coopfront-674574933021.europe-central2.run.app") // Your frontend
-               .AllowAnyHeader()
-               .AllowAnyMethod()
-               .AllowCredentials()
-               .SetIsOriginAllowed(origin => string.IsNullOrEmpty(origin) || origin == "https://coopfront-674574933021.europe-central2.run.app");
+        builder.WithOrigins(
+            "https://coopfront-674574933021.europe-central2.run.app", // Frontend
+            "https://*.googleapis.com" // Google health checks
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
+
 
 // Add RedisSubscriberService
 builder.Services.AddSingleton<RedisSubscriberService>();
