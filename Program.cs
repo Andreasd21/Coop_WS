@@ -40,8 +40,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowedOriginsPolicy", builder =>
     {
         builder.WithOrigins(
-            "https://coopfront-674574933021.europe-central2.run.app", // Frontend
-            "https://*.googleapis.com" // Google health checks
+            "https://coopfront-674574933021.europe-central2.run.app" // Frontend
         )
         .AllowAnyHeader()
         .AllowAnyMethod()
@@ -64,6 +63,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.MapGet("/health", () => Results.Ok("Healthy")); // Responds with 200 OK
+
 
 // Use CORS policy
 app.UseCors("AllowedOriginsPolicy");
