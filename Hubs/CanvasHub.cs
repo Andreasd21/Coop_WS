@@ -40,7 +40,7 @@ namespace CooP_WS.Hubs
                 }
                 else
                 {
-                    if (rate.MessageCount >= 5) // Allow 5 messages per second
+                    if (rate.MessageCount >= 10) // Allow 5 messages per second
                     {
                         Console.WriteLine($"Rate limit exceeded for client: {clientId}");
                         Context.Abort(); // Disconnect the client if they exceed the rate limit
