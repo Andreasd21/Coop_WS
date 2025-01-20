@@ -39,10 +39,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowedOriginsPolicy", builder =>
     {
-        builder.WithOrigins("https://coopfront-674574933021.europe-central2.run.app") // Replace with your frontend URL
+        builder.WithOrigins("https://coopfront-674574933021.europe-central2.run.app") // Your frontend
                .AllowAnyHeader()
                .AllowAnyMethod()
-               .AllowCredentials(); // Allow credentials if needed
+               .AllowCredentials()
+               .SetIsOriginAllowed(origin => string.IsNullOrEmpty(origin) || origin == "https://coopfront-674574933021.europe-central2.run.app");
     });
 });
 
