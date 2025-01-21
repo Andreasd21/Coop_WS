@@ -68,7 +68,7 @@ app.MapGet("/health", () => Results.Ok("Healthy")); // Responds with 200 OK
 
 
 // Use CORS policy
-app.UseCors("AllowedOriginsPolicy");
+// app.UseCors("AllowedOriginsPolicy");
 
 // Map SignalR hubs
 app.MapHub<CanvasHub>("/canvasHub");
